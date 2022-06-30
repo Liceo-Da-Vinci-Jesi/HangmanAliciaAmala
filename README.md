@@ -1,2 +1,2 @@
 # HangmanAliciaAmala
-La versione del classico gioco dell'impiccato di Alicia Fabbretti e Amala Oruche
+La versione di Alicia Fabbretti e Amala Oruche del classico gioco dell'impiccato 
