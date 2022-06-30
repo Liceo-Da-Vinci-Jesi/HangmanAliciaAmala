@@ -28,8 +28,8 @@ PAROLA_FONT = pygame.font.SysFont('comicsans', 80)
 HAI_FONT = pygame.font.SysFont('showcard gothic', 80)
 TITOLO_FONT = pygame.font.SysFont('monotype corsiva', 90)
 TITOLO_FONT2 = pygame.font.SysFont('monotype corsiva', 30)
-RICOMINCIA_FONT = pygame.font.SysFont('brushscript mt', 80)
-CONTINUA_FONT = pygame.font.SysFont('brushscript mt', 80)
+TASTI_FONT = pygame.font.SysFont('colonna mt', 100)
+DOMANDA_FONT = pygame.font.SysFont('blackadder itc', 120)
 #-------------------------------
 
 #COLORI
@@ -61,21 +61,26 @@ for i in range(26):
     
 # LOAD IMAGES
 images=[]
-for i in range(2,8):
+for i in range(1,7):
     image=pygame.image.load("media/disegno" + str(i) + ".png")
     images.append(image)
 
 #-------------------------------
     
-# VARIABILI DEL GIOCO
+# CREAZIONE DEL FILE E LISTA DELLE PAROLE
 impiccato_status=0 #si riferisce al numero dell'immagine
-parole=["CTRL","SCIENTIFICO", "EVVIVA", "GATTO", "CASA", "ANIMALE", "AMORE", "SOLE", "CUFFIE", "COMPUTER", "PALLONE", "ALBERO", "FRAGOLA", "CARCIOFI", "VESPA", "ASSORBIMENTO", "CAPELLI", "DORMIRE", "LINGUAGGIO","PAPPAGALLO", "SOLEGGIATO", "MONITOR", "MONOPOLI", "APE", "MARE", "ERASMUS", "OCEANO","BUONGIORNO", "CENA", "REALTÀ", "MUCCA", "SOFISTICAT", "SPIAGGIA", "TORINO", "AQUILA", "CACAO", "RISPONDI", "PERCHE'", "COSCIENZA"]
+file = open("PAROLE.txt", "r")
+file.read
+parole = []
+for par in file:
+    parole.append(par.replace("\n", ""))
+file.close()
 parola = random.choice(parole)
 indovina=[parola[0]]
 
 #-------------------------------
 
-#DEF DEL GIOCO 
+#DEF DEL GIOCO:
 def disegno():
     win.fill(WHITE) # fill = colora tutto il display
     
@@ -83,7 +88,7 @@ def disegno():
     titolo = TITOLO_FONT.render("Impiccato 3AS", 1, BLUE)
     nomi = TITOLO_FONT2.render("by Alicia & Amala", 1, BLUE)
     win.blit(titolo, (LUN/2 - titolo.get_width()/2, 40))# blit = mi permette di visualizzare un'immagine o una superficie grafica sopra un'altra
-    win.blit(nomi, (1390, 960)) 
+    win.blit(nomi, (1385, 960)) 
     #disegna parola
     display_parola=""
     
@@ -110,9 +115,21 @@ def disegno():
     #blit = disegna l'immagine; (150,100) = coordinate da cui parte il disegno
     if impiccato_status<len(images):
         win.blit(images[impiccato_status],(150,100)) 
-        pygame.display.update()  
+        pygame.display.update()
+        
 #-------------------------------
+# def TASTI     
+def tasti(win, pos, text):
+    par = TASTI_FONT.render(text, 1, BLACK)
+    x, y, b, h = par.get_rect()  #b = base , h = altezza
+    x, y = pos
+    pygame.draw.line(win, BLACK, (x, y), (x + b , y), 5)
+    pygame.draw.line(win, BLACK, (x, y - 2), (x, y + h), 5)
+    pygame.draw.line(win, BLACK, (x, y + h), (x + b , y + h), 5)
+    pygame.draw.line(win, BLACK, (x + b , y+h), [x + b , y], 5)
+    return win.blit(par, (x, y))
 
+#-------------------------------          
 # DEF HAI VINTO/PERSO
 def display_messaggio(messaggio):
         pygame.time.delay(1000)# tempo che passa prima di far vedere il messaggio
@@ -121,45 +138,24 @@ def display_messaggio(messaggio):
             text = HAI_FONT.render(messaggio, 1 , GREEN)
             vinto.play()
         if messaggio =="HAI PERSO :(":
+            gameOver = True
             text = HAI_FONT.render(messaggio, 1 , RED)
             perso.play()
         win.blit(text, (LUN/2 - text.get_width()/2, ALT/2- text.get_height()/2))
         pygame.display.update()
         pygame.time.delay(3000)# il tempo che passa dopo il messaggio prima che  appare il menu
+
 #-------------------------------
-        
-# DEF DELLA PAAROLA NN INDOVINATA
+# DEF DELLA PAAROLA NON INDOVINATA
 def last_word():
     win.fill(BLACK)
     text = PAROLA_FONT.render(F'La Parola era: {parola}', 1, WHITE)
     win.blit(text, (int(LUN/2 - int(text.get_width()/2)), int(ALT/2) - int(text.get_height()/2)))
     pygame.display.update() 
-#-------------------------------
- 
- # DEF PER RICOMINCIARE IL GIOCO
-def ricomincia_gioco():
-    global hangman_status # global: mi lascia usare le variabili al di fuori della funzione
-    global word
-    global guessed
-    global letters
-    global i
-    global x
-    global y
-    hangman_status = 0
-    parola = random.choice(parole)
-    indovina = []
-    lettere = []
-    for i in range(26):
-        x = startx + distanza * 2 + (raggio * 2 + distanza) * (i % 13)
-        y = starty  + ((i // 13) * (distanza + raggio * 2))
-        lettere.append([x,y, chr(A+i), True])
-        main()
 
 #-------------------------------
 # CICLO DEL GIOCO     
-def main():
-    gameover = False
-    gameclose= False
+def main():  
     global impiccato_status # global : mi consente di accedere alle variabili anche se non c'è nella funzione 
     # FPS frame per second la velocità del gioco per secondo
     FPS= 60
@@ -168,7 +164,6 @@ def main():
     
     while run:
         Clock.tick(FPS) #si assicura che il while rispetti cio che abbiamo scritto prima con FPS
-        
         for evento in pygame.event.get(): #controlla gli eventi del gioco
             if evento.type == pygame.QUIT: #chiude il gioco
                 run= False
@@ -199,37 +194,54 @@ def main():
         # HAI VINTO O PERSO?
         if won:
             display_messaggio("HAI VINTOOOO! :)")
-            win.fill(CYAN)
-            frase = CONTINUA_FONT.render("Clicca <<SPAZIO>> per continuare", 1 , BLACK)
-            win.blit(frase, (LUN/2 - frase.get_width()/2, ALT/2- frase.get_height()/2))
-            for event in pygame.event.get():
-                # Condition becomes true when keyboard is pressed   
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        print("ciao")
-                        main()
-                        
-            pygame.display.update()
-            pygame.time.delay(10000)
-                
-        if impiccato_status==6:
+            break
+        if impiccato_status==6 :
             last_word()
             pygame.time.delay(4000)            
             perso = display_messaggio("HAI PERSO :(")
             break
 main()
 #-------------------------------
+ 
+ # DEF PER RICOMINCIARE IL GIOCO
+def ricomincia_gioco():
+    global hangman_status # global: mi lascia usare le variabili al di fuori della funzione
+    global parola
+    global indovina
+    global lettere
+    global i
+    global x
+    global y
+    hangman_status = 0
+    parola = random.choice(parole)
+    indovina = [parola[0]]
+    lettere = []
+    for i in range(26):
+        x = startx + distanza * 2 + (raggio * 2 + distanza) * (i % 13)
+        y = starty  + ((i // 13) * (distanza + raggio * 2))
+        lettere.append([x,y, chr(A+i), True])
+    main()
 
 # VUOI RICOMINCIARE IL GIOCO?
 while True:
     run = True
     win.fill(PURPLE)
-    frase = RICOMINCIA_FONT.render("Clicca <<INVIO>> per ricominciare", 1 , BLACK)
-    win.blit(frase, (LUN/2 - frase.get_width()/2, ALT/2- frase.get_height()/2))
+    domanda = DOMANDA_FONT.render("Vuoi continuare o uscire?", 1 , BLACK)
+    cont= tasti(win, ( 500, 500), "Continua")
+    esci=tasti(win, (900, 500), "Esci")
+    win.blit(domanda, (LUN/2 - domanda.get_width()/2, 300))
     for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_KP_ENTER:
-                  main()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if esci.collidepoint(pygame.mouse.get_pos()):
+                    pygame.quit()
+                    pygame.time.delay(10)
+            elif cont.collidepoint(pygame.mouse.get_pos()) :   
+                    win.fill(CYAN)
+                    frase = TITOLO_FONT.render("Loading.....", 1 , BLACK)
+                    win.blit(frase, (LUN/2 - frase.get_width()/2, 500))
+                    pygame.display.update()
+                    pygame.time.delay(4000)
+                    ricomincia_gioco()
                   
     pygame.display.update()
     pygame.time.delay(10000)
